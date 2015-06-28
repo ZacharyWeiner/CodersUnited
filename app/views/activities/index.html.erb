@@ -1,0 +1,46 @@
+<div class="jumbotron">
+	<div class="text-center">
+		<h2>Timeline</h2>
+		<% if current_user.present? %>
+		<div class="btn-group" role="group" aria-label="Default Button Groups">
+			<%= link_to "Everything", activities_path, class: "btn btn-default #{'active' unless params[:content]}"%>
+			<%= link_to "Just Posts", activities_path(content: "posts"), class: "btn btn-default #{'active' if params[:content] == 'posts'}"%>
+		</div>
+		<% end %>
+	</div>
+</div>
+
+<div class="container">
+	<ul class="timeline">
+		<% @activities.each_with_index do |activity| %>
+		<% unless activity.trackable_type== "Friendship" && activity.owner == current_user %>
+		<% if activity.trackable %>
+		<% if cycle('odd', 'even') == 'odd' %>
+		<li class="timeline-inverted">
+		<% else %> 
+			<li>
+		<% end %>
+				<div class="timeline-badge"> <%= gravatar_tag activity.owner.email, size: 55%>
+				</div>
+				<div class="timeline-panel">
+					<div class="timeline-heading">
+						<div class="timeline-title">
+							<h4><%= link_to activity.owner.username, user_path(activity.owner.username) %>
+							</h4>
+							<p><small><%= time_ago_in_words(activity.created_at) %> ago </small></p>
+						</div>
+					</div>
+					<div class="timeline-body" >
+						<% case activity.trackable_type when "Post"%>
+							<p><%= raw(activity.trackable.body_html) %></p>
+						<% when "Friendship" %>
+							<p><%= link_to activity.owner.username, user_path(activity.owner.username) %> is now friends with <%= link_to activity.recipient.username, user_path(activity.recipient.username) %> </p>
+						<% end %>
+					</div>
+				</div>
+				</li>
+		<% end %>
+		<% end %>
+		<% end %>
+	</ul>
+</div>
